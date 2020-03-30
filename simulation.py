@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import random
 
-spread_limit = 10
+spread_limit = 15
 recovery_prob = 0.70
 intial_count = 10
 
@@ -56,6 +56,8 @@ def day():
     i = 0
     while(i < len(pos['x'])):
         for j in range(infected_count):
+            if(i>=len(pos['x'])):
+                break
             if(distance(i,j)< spread_limit):
                 infected.loc[infected_count]= [pos['x'][i],pos['y'][i],1]
                 infected_count = infected_count + 1   
@@ -81,9 +83,11 @@ txt="spread_limit = {}  recovery_prob = {} intial_count = {}".format(spread_limi
 fig = plt.figure(figsize=(len(dead_count_arr), 5))
 ax = fig.add_subplot(111)
 ax.plot(dead_count_arr,color='blue')
-
-ax.plot(infected_count_arr,color='orange' )
+ax.plot(non_infected_count_arr,color='orange' )
+ax.plot(infected_count_arr,color='red' )
 ax.plot(recovered_count_arr,color='green')
-plt.gca().legend(['Dead', 'infected', 'recovered'], loc='best')
+
+plt.gca().legend(['Dead', 'non infected','infected', 'recovered'], loc='best')
 plt.figtext(0.5, 0.01, txt, wrap=True, horizontalalignment='center', fontsize=12)
+plt.savefig(txt+ ".pdf")
 ax.show()
