@@ -10,11 +10,13 @@ import matplotlib.pyplot as plt
 import numpy as np
 import random
 
-pos = pd.DataFrame()
+spread_limit = 10
+recovery_prob = 0.70
 
+pos = pd.DataFrame()
 pos['x'] =[]
 pos['y'] =[]
-spread_limit = 10
+
 infected = pd.DataFrame()
 infected['x'] = []
 infected['y'] = []
@@ -38,7 +40,8 @@ def day():
     for i in range(len(infected['time'])):
         infected['time'][i]= infected['time'][i] +1
         if (infected['time'][i]>3):
-            infected = infected.drop(i)   
+            infected = infected.drop(i)
+            removed()
     infected = infected.reset_index(drop=True)
     infected_count = len(infected['time'])  
     i = 0
@@ -51,6 +54,11 @@ def day():
                 pos = pos.reset_index(drop=True) 
 
         i = i +1       
-
+def removed():
+    if(random.random()<recovery_prob):
+        recovered_count = recovered_count + 1
+    else :
+        dead_count = dead_count + 1
+    
 plt.scatter(pos.x,pos.y)
 infected.append([random.randint(0, 1000),1])
