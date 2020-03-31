@@ -6,6 +6,7 @@ import random
 spread_limit = 15
 recovery_prob = 0.70
 intial_count = 10
+infection_rate = 0.5
 
 pos = pd.DataFrame()
 pos['x'] =[]
@@ -39,6 +40,8 @@ pos = pos.reset_index(drop=True)
 def distance(pos1,pos2):
     return ((infected['x'][pos2]-pos['x'][pos1])**2)+((infected['y'][pos2]-pos['y'][pos1])**2)
 
+def infected_check():
+    return (random.random()<infection_rate)
 
 def day():
     global infected_count,dead_count,recovered_count,infected,pos
@@ -59,10 +62,11 @@ def day():
             if(i>=len(pos['x'])):
                 break
             if(distance(i,j)< spread_limit):
-                infected.loc[infected_count]= [pos['x'][i],pos['y'][i],1]
-                infected_count = infected_count + 1   
-                pos = pos.drop(i)
-                pos = pos.reset_index(drop=True) 
+                if(infected_check()):
+                    infected.loc[infected_count]= [pos['x'][i],pos['y'][i],1]
+                    infected_count = infected_count + 1   
+                    pos = pos.drop(i)
+                    pos = pos.reset_index(drop=True) 
         
         i = i +1       
 
@@ -79,7 +83,8 @@ while(infected_count != 0 ):
     day()
 
 
-txt="spread_limit = {}  recovery_prob = {} intial_count = {}".format(spread_limit,recovery_prob,intial_count)
+
+txt="spread_limit = {}  recovery_prob = {} intial_count = {} infection_rate = {} ".format(spread_limit,recovery_prob,intial_count,infection_rate)
 fig = plt.figure(figsize=(len(dead_count_arr), 5))
 ax = fig.add_subplot(111)
 ax.plot(dead_count_arr,color='blue')
