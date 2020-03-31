@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import random
 
-spread_limit = 1
+spread_limit = 10
 recovery_prob = 0.70
 intial_count = 10
 infection_rate = 0.5
@@ -109,7 +109,7 @@ plt.figtext(0.5, 0.01, txt, wrap=True, horizontalalignment='center', fontsize=12
 ax.show()
 
 ################################################################################################################################################
-# Change in total involved,safe,and days taken with spread_limit_change
+# Change in total involved,safe,and days taken with change in spread_limit
 ################################################################################################################################################
 total_involed = []
 total_safe = []
@@ -146,4 +146,40 @@ plt.title( txt)
 plt.savefig(txt+ ".pdf")
 plt.show()
 
+################################################################################################################################################
+# Change in total involved,safe,and days taken with change in intial_count
+################################################################################################################################################
+total_involed = []
+total_safe = []
+days = []
+intial_count_values = []
+def intial_count_change():
+    global intial_count
+    intial_count = 10
+    for i in range(16):    
+        day_call()
+        total_involed.append(recovered_count + dead_count)
+        total_safe.append(population - recovered_count - dead_count)
+        days.append(len(recovered_count_arr))
+        intial_count_values.append(intial_count)
+        intial_count = intial_count + 1
+    
+intial_count_change()
 
+txt="PEOPLE INITIAL_COUNT_VARIABLE(10,25)  recovery_prob = {} intial_count = {} infection_rate = {} ".format(recovery_prob,intial_count,infection_rate)
+plt.plot(spread_limit_values,total_involed ,color='blue')
+plt.plot(spread_limit_values,total_safe,color='orange' )
+plt.xlabel("INITIAL_COUNT_VALUE")
+plt.ylabel("No. of people")
+plt.legend(['total_involed', 'total_safe'], loc='best')
+plt.title( txt)
+plt.savefig(txt+ ".pdf")
+plt.show()
+
+txt="DAYS INITIAL_COUNT_VARIABLE(10,25)  recovery_prob = {} intial_count = {} infection_rate = {} ".format(recovery_prob,intial_count,infection_rate)
+plt.plot(spread_limit_values,days)
+plt.xlabel("INITIAL_COUNT_VALUE")
+plt.ylabel("Days")
+plt.title( txt)
+plt.savefig(txt+ ".pdf")
+plt.show()
