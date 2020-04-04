@@ -204,7 +204,7 @@ def infection_rate_change():
     
 infection_rate_change()
 
-txt="PEOPLE INFECTION_RATE_VARIABLE(0.1,1,step =.05)  recovery_prob = {} intial_count = {} spread_limit = {} ".format(recovery_prob,intial_count,infection_rate)
+txt="PEOPLE INFECTION_RATE_VARIABLE(0.1,1,step =.05)  recovery_prob = {} intial_count = {} spread_limit = {} ".format(recovery_prob,intial_count,spread_limit)
 plt.plot(infection_rate_values,total_involed ,color='blue')
 plt.plot(infection_rate_values,total_safe,color='orange' )
 plt.xlabel("INFECTION_RATE_VALUE")
@@ -214,7 +214,7 @@ plt.title( "Description in file name")
 plt.savefig(txt+ ".pdf")
 plt.show()
 
-txt="DAYS INFECTION_RATE_VARIABLE(0.1,1,step =.05) recovery_prob = {} intial_count = {} spread_limit = {} ".format(recovery_prob,intial_count,infection_rate)
+txt="DAYS INFECTION_RATE_VARIABLE(0.1,1,step =.05) recovery_prob = {} intial_count = {} spread_limit = {} ".format(recovery_prob,intial_count,spread_limit)
 plt.plot(infection_rate_values,days)
 plt.xlabel("INFECTION_RATE_VALUE")
 plt.ylabel("Days")
