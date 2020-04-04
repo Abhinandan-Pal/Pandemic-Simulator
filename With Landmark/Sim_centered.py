@@ -13,6 +13,7 @@ population = 1000
 
 landmark = [(50,50),(10,10),(90,90)]
 landmark_prob = 0.1
+landmark_prob_dec_rate = 0.8
 
 
 def initialize():
@@ -35,6 +36,7 @@ def initialize():
     dead_count_arr = []
     recovered_count_arr = []
     non_infected_count_arr = []
+    landmark_prob_values = []
 
     for i in range(population):
         pos.loc[i]=[random.randint(0, population/10),random.randint(0, population/10)]
@@ -53,12 +55,15 @@ def infected_check():
     return (random.random()<infection_rate)
 
 def move_around():
+    global landmark_prob,landmark_prob_values
     for i in range(len(pos['x'])):
         if(random.random()<landmark_prob):
             x,y = landmark[random.randint(0, len(landmark)-1)]
             pos.loc[i]=[x,y]
         else:     
             pos.loc[i]=[random.randint(0, population/10),random.randint(0, population/10)]
+    landmark_prob = landmark_prob* landmark_prob_dec_rate
+    landmark_prob_values.append(landmark_prob)
 
 def day():
     global infected_count,dead_count,recovered_count,infected,pos #getting global data
@@ -112,7 +117,7 @@ def day_call():
 ################################################################################################################################################
 day_call()
 
-txt="spread_limit = {}  recovery_prob = {} intial_count = {} infection_rate = {} ".format(spread_limit,recovery_prob,intial_count,infection_rate)
+txt="<decrease landmark> = {} landmark_prob = {} spread_limit = {}  recovery_prob = {} intial_count = {} infection_rate = {} ".format(landmark_prob_dec_rate,landmark_prob,spread_limit,recovery_prob,intial_count,infection_rate)
 fig = plt.figure(figsize=(len(dead_count_arr), 5))
 ax = fig.add_subplot(111)
 ax.plot(dead_count_arr,color='blue')
@@ -122,7 +127,7 @@ ax.plot(recovered_count_arr,color='green')
 
 plt.gca().legend(['Dead', 'non infected','infected', 'recovered'], loc='best')
 plt.figtext(0.5, 0.01, txt, wrap=True, horizontalalignment='center', fontsize=12)
-#plt.savefig(txt+ ".pdf")
+plt.savefig(txt+ ".pdf")
 ax.show()
 
 ################################################################################################################################################
