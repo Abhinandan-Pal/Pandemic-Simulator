@@ -63,40 +63,50 @@ def initialize():
 def isolation_initiate():
     for i in range(len(pos['x'])):
         if(random.random()<lock_ratio):
-            pos.Quar[i]= 10
+            pos.Quar[i]= 1
     
 def isolation():
     i = 0
-    dec_num_i = 0
-    inc_num_i = 0
-    dec_num = len(pos['x'])*lock_decrease_rate
-    inc_num = len(pos['x'])*lock_increase_rate
     while(True):
         for i in range(len(pos['x'])):
             t = random.random()
             if(t<lock_increase_rate):
-                pos.Quar[i] = min(pos.Quar[i]+ random.random()*10,10)
-            else if(t<lock_increase_rate+lock_decrease_rate):
-                
-                
-            
-        if(random.random()<lock_ratio):
-            pos.Quar[i]= 10
+                pos.Quar[i] = min(pos.Quar[i]+ random.random(),1)
+            elif(t <( lock_increase_rate+lock_decrease_rate)):
+                pos.Quar[i] = max(pos.Quar[i]- random.random(),0)
             
 def distance(pos1,pos2):
     return ((infected['x'][pos2]-pos['x'][pos1])**2)+((infected['y'][pos2]-pos['y'][pos1])**2)
 
-def infected_check():
-    return (random.random()<infection_rate)
+def infected_check(pos1):
+    iso = 1- pos['Quar'][pos1]
+    return (random.random()<infection_rate*iso)
+
+def infect():
+    global pos,infected_count
+    i = 0
+    move_around()
+    while(i < len(pos['x'])):
+        for j in range(infected_count):
+            if(i>=len(pos['x'])):
+                break
+            if(distance(i,j)< spread_limit):
+                if(infected_check(i)):
+                    infected.loc[infected_count]= [pos['x'][i],pos['y'][i],1]
+                    infected_count = infected_count + 1   
+                    pos = pos.drop(i)
+                    pos = pos.reset_index(drop=True) 
+        
+        i = i +1       
 
 def move_around():
     global landmark_prob,landmark_prob_values
     for i in range(len(pos['x'])):
         if(random.random()<landmark_prob):
             x,y = landmark[random.randint(0, len(landmark)-1)]
-            pos.loc[i]=[x,y]
+            pos.loc[i]=[x,y,pos['Quar'][i]]
         else:     
-            pos.loc[i]=[random.randint(0, population/10),random.randint(0, population/10)]
+            pos.loc[i]=[random.randint(0, population/10),random.randint(0, population/10),pos['Quar'][i]]
     landmark_prob = landmark_prob* landmark_prob_dec_rate
     landmark_prob_values.append(landmark_prob)
 
@@ -115,20 +125,7 @@ def day():
     # set new loction for all not infected
     infected = infected.reset_index(drop=True)
     infected_count = len(infected['time'])  
-    i = 0
-    move_around()
-    while(i < len(pos['x'])):
-        for j in range(infected_count):
-            if(i>=len(pos['x'])):
-                break
-            if(distance(i,j)< spread_limit):
-                if(infected_check()):
-                    infected.loc[infected_count]= [pos['x'][i],pos['y'][i],1]
-                    infected_count = infected_count + 1   
-                    pos = pos.drop(i)
-                    pos = pos.reset_index(drop=True) 
-        
-        i = i +1       
+    infect()    
 
 def removed():
     if(random.random()<recovery_prob):
@@ -152,7 +149,8 @@ def day_call():
 ################################################################################################################################################
 day_call()
 
-txt="<decrease landmark> = {} landmark_prob = {} spread_limit = {}  recovery_prob = {} intial_count = {} infection_rate = {} ".format(landmark_prob_dec_rate,landmark_prob,spread_limit,recovery_prob,intial_count,infection_rate)
+
+txt="LOCKDOWN<decrease landmark> = {} landmark_prob = {} spread_limit = {}  recovery_prob = {} intial_count = {} infection_rate = {} ".format(landmark_prob_dec_rate,landmark_prob,spread_limit,recovery_prob,intial_count,infection_rate)
 fig = plt.figure(figsize=(len(dead_count_arr), 5))
 ax = fig.add_subplot(111)
 ax.plot(dead_count_arr,color='blue')
