@@ -183,3 +183,41 @@ plt.ylabel("Days")
 plt.title( "Description in file name")
 plt.savefig(txt+ ".pdf")
 plt.show()
+
+################################################################################################################################################
+# Change in total involved,safe,and days taken with change in infection_rate
+################################################################################################################################################
+total_involed = []
+total_safe = []
+days = []
+infection_rate_values = []
+def infection_rate_change():
+    global infection_rate
+    infection_rate = 0.10
+    for i in range(18):    
+        day_call()
+        total_involed.append(recovered_count + dead_count)
+        total_safe.append(population - recovered_count - dead_count)
+        days.append(len(recovered_count_arr))
+        infection_rate_values.append(infection_rate)
+        infection_rate = infection_rate + 0.05
+    
+infection_rate_change()
+
+txt="PEOPLE INFECTION_RATE_VARIABLE(0.1,1,step =.05)  recovery_prob = {} intial_count = {} spread_limit = {} ".format(recovery_prob,intial_count,infection_rate)
+plt.plot(infection_rate_values,total_involed ,color='blue')
+plt.plot(infection_rate_values,total_safe,color='orange' )
+plt.xlabel("INFECTION_RATE_VALUE")
+plt.ylabel("No. of people")
+plt.legend(['total_involed', 'total_safe'], loc='best')
+plt.title( "Description in file name")
+plt.savefig(txt+ ".pdf")
+plt.show()
+
+txt="DAYS INFECTION_RATE_VARIABLE(0.1,1,step =.05) recovery_prob = {} intial_count = {} spread_limit = {} ".format(recovery_prob,intial_count,infection_rate)
+plt.plot(infection_rate_values,days)
+plt.xlabel("INFECTION_RATE_VALUE")
+plt.ylabel("Days")
+plt.title( "Description in file name")
+plt.savefig(txt+ ".pdf")
+plt.show()
