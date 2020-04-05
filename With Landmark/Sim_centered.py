@@ -117,7 +117,13 @@ def day_call():
 ################################################################################################################################################
 day_call()
 
-txt="<decrease landmark> = {} landmark_prob = {} spread_limit = {}  recovery_prob = {} intial_count = {} infection_rate = {} ".format(landmark_prob_dec_rate,landmark_prob,spread_limit,recovery_prob,intial_count,infection_rate)
+name = "plot 1"
+my_file = open(name + ".txt","w")
+txt = "There are landmark(market,theatre,religious centres).If an infected person goes there the chances of spread increases to a great extend.The probability of visiting the landmark decreases with time,as people realize the danger. \n\n"
+txt = txt +"Parameters:\n spread_limit = {}\n recovery_prob = {}\n intial_count = {}\n infection_rate = {}\n ".format(spread_limit,recovery_prob,intial_count,infection_rate)
+txt = txt + "population = {}\n landmark = {}\n  landmark_prob = {}\n landmark_prob_dec_rate = {}\n ".format(population,landmark,landmark_prob,landmark_prob_dec_rate,)
+my_file.write(txt)
+
 fig = plt.figure(figsize=(len(dead_count_arr), 5))
 ax = fig.add_subplot(111)
 ax.plot(dead_count_arr,color='blue')
@@ -126,8 +132,7 @@ ax.plot(infected_count_arr,color='red' )
 ax.plot(recovered_count_arr,color='green')
 
 plt.gca().legend(['Dead', 'non infected','infected', 'recovered'], loc='best')
-plt.figtext(0.5, 0.01, txt, wrap=True, horizontalalignment='center', fontsize=12)
-plt.savefig(txt+ ".pdf")
+plt.savefig(name+ ".pdf")
 ax.show()
 
 ################################################################################################################################################
