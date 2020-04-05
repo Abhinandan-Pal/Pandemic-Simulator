@@ -26,9 +26,12 @@ landmark_prob_dec_rate = 0.8
 lock_ratio = 0.8
 lock_decrease_rate = 0.2
 lock_increase_rate = 0.1
+lock_infected_count = 100
+
 
 def initialize():
-    global infected_count,dead_count,recovered_count,infected,pos,infected_count_arr,dead_count_arr,recovered_count_arr,non_infected_count_arr 
+    global infected_count,dead_count,recovered_count,infected,pos,infected_count_arr
+    global dead_count_arr,recovered_count_arr,non_infected_count_arr,lock_count,landmark_prob_values,lock_count_arr 
     pos = pd.DataFrame()
     pos['x'] =[]
     pos['y'] =[]
@@ -42,13 +45,14 @@ def initialize():
     infected_count = intial_count
     dead_count = 0
     recovered_count = 0
-
+    lock_count = 0
 
     infected_count_arr = []
     dead_count_arr = []
     recovered_count_arr = []
     non_infected_count_arr = []
     landmark_prob_values = []
+    lock_count_arr = []
 
     for i in range(population):
         pos.loc[i]=[random.randint(0, population/10),random.randint(0, population/10),0]
@@ -61,19 +65,24 @@ def initialize():
     pos = pos.reset_index(drop=True)    
 
 def isolation_initiate():
+    global lock_count
     for i in range(len(pos['x'])):
         if(random.random()<lock_ratio):
             pos.Quar[i]= 1
+            lock_count = lock_count + 1
     
 def isolation():
+    global lock_count
     i = 0
-    while(True):
-        for i in range(len(pos['x'])):
-            t = random.random()
-            if(t<lock_increase_rate):
-                pos.Quar[i] = min(pos.Quar[i]+ random.random(),1)
-            elif(t <( lock_increase_rate+lock_decrease_rate)):
-                pos.Quar[i] = max(pos.Quar[i]- random.random(),0)
+
+    for i in range(len(pos['x'])):
+        t = random.random()
+        if(t<lock_increase_rate):
+            pos.Quar[i] = min(pos.Quar[i]+ random.random(),1)
+            lock_count = lock_count + 1
+        elif(t <( lock_increase_rate+lock_decrease_rate)):
+            pos.Quar[i] = max(pos.Quar[i]- random.random(),0)
+            lock_count = lock_count - 1
             
 def distance(pos1,pos2):
     return ((infected['x'][pos2]-pos['x'][pos1])**2)+((infected['y'][pos2]-pos['y'][pos1])**2)
@@ -111,7 +120,12 @@ def move_around():
     landmark_prob_values.append(landmark_prob)
 
 def day():
-    global infected_count,dead_count,recovered_count,infected,pos #getting global data
+    global infected_count,dead_count,recovered_count,infected,pos,lock_count_arr,lock_count #getting global data
+    
+    isolation()
+    if(infected_count > lock_infected_count):
+        isolation_initiate()
+    
     infected_count_arr.append(infected_count)
     non_infected_count_arr.append(len(pos['x']))
     dead_count_arr.append(dead_count)
@@ -125,7 +139,8 @@ def day():
     # set new loction for all not infected
     infected = infected.reset_index(drop=True)
     infected_count = len(infected['time'])  
-    infect()    
+    infect()
+    lock_count_arr.append(lock_count)    
 
 def removed():
     if(random.random()<recovery_prob):
@@ -150,7 +165,14 @@ def day_call():
 day_call()
 
 
-txt="LOCKDOWN<decrease landmark> = {} landmark_prob = {} spread_limit = {}  recovery_prob = {} intial_count = {} infection_rate = {} ".format(landmark_prob_dec_rate,landmark_prob,spread_limit,recovery_prob,intial_count,infection_rate)
+name = "plot 1"
+my_file = open(name + ".txt","w")
+txt = "People start going to lockdown as the disease spreads. There is a gov. sanctioned lockdown after a ceratin a given infected count. More no of. people tend to disobey with time.\n\n"
+txt = txt +"Parameters:\n spread_limit = {}\n recovery_prob = {}\n intial_count = {}\n infection_rate = {}\n ".format(spread_limit,recovery_prob,intial_count,infection_rate)
+txt = txt + "population = {}\n landmark = {}\n  landmark_prob = {}\n landmark_prob_dec_rate = {}\n lock_ratio = {}\n ".format(population,landmark,landmark_prob,landmark_prob_dec_rate,lock_ratio)
+txt = txt + "lock_decrease_rate = {}\n lock_increase_rate = {}\n  lock_infected_count = {}\n".format(lock_decrease_rate,lock_increase_rate,lock_infected_count)
+my_file.write(txt)
+
 fig = plt.figure(figsize=(len(dead_count_arr), 5))
 ax = fig.add_subplot(111)
 ax.plot(dead_count_arr,color='blue')
@@ -159,8 +181,9 @@ ax.plot(infected_count_arr,color='red' )
 ax.plot(recovered_count_arr,color='green')
 
 plt.gca().legend(['Dead', 'non infected','infected', 'recovered'], loc='best')
-plt.figtext(0.5, 0.01, txt, wrap=True, horizontalalignment='center', fontsize=12)
-plt.savefig(txt+ ".pdf")
+plt.xlabel("Days")
+plt.ylabel("No. of people")
+plt.savefig(name+ ".pdf")
 ax.show()
 
 ################################################################################################################################################
