@@ -1,0 +1,12 @@
+There are landmark(market,theatre,religious centres).If an infected person goes there the chances of spread increases to a great extend.The probability of visiting the landmark decreases with time,as people realize the danger. 
+
+Parameters:
+ spread_limit = 10
+ recovery_prob = 0.7
+ intial_count = 10
+ infection_rate = 0.5
+ population = 1000
+ landmark = [(50, 50), (10, 10), (90, 90)]
+  landmark_prob = 0.0003777893186295722
+ landmark_prob_dec_rate = 0.8
+ 
