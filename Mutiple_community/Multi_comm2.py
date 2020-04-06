@@ -20,7 +20,7 @@ infection_rate = 0.5
 population = 1000
 
 landmark = []
-landmark_prob = 0.1
+landmark_prob = 0.3
 landmark_prob_dec_rate = 0.8
 
 lock_ratio = 0.8
@@ -64,9 +64,9 @@ def initialize():
         x = random.randint(0, population/10/no_of_region)+(reg)*(population/10/no_of_region)
         pos.loc[i]=[x,y,0,reg]
         # RUN THIS SECTION SO SEE INITIAL DISTRIBUTION
-        fig = plt.figure(figsize=(no_of_region, 1))
-        ax = fig.add_subplot(111)
-        ax.scatter(pos['x'],pos['y'])
+        #fig = plt.figure(figsize=(no_of_region, 1))
+        #ax = fig.add_subplot(111)
+        #ax.scatter(pos['x'],pos['y'])
         #---------------------------------------------
 
     for i in range(10):
@@ -124,21 +124,26 @@ def infect():
             if(region_check(i,j)):
                 if(distance(i,j)< spread_limit):
                     if(infected_check(i)):
-                        infected.loc[infected_count]= [pos['x'][i],pos['y'][i],1]
+                        infected.loc[infected_count]= [pos['x'][i],pos['y'][i],1,pos['region'][i]]
                         infected_count = infected_count + 1   
                         pos = pos.drop(i)
                         pos = pos.reset_index(drop=True) 
         
         i = i +1          
 
+
+###################################################EDIT FROM MOVE AROUND#######################
 def move_around():
     global landmark_prob,landmark_prob_values
     for i in range(len(pos['x'])):
         if(random.random()<landmark_prob):
             x,y = landmark[random.randint(0, len(landmark)-1)]
-            pos.loc[i]=[x,y,pos['Quar'][i]]
+            pos.loc[i]=[x,y,pos['Quar'][i],pos['region'][i]]
         else:     
-            pos.loc[i]=[random.randint(0, population/10),random.randint(0, population/10),pos['Quar'][i]]
+            reg = pos['region'][i]
+            y = random.randint(0, population/10/no_of_region)
+            x = random.randint(0, population/10/no_of_region)+(reg)*(population/10/no_of_region)
+            pos.loc[i]=[x,y,pos['Quar'][i],reg]
     landmark_prob = landmark_prob* landmark_prob_dec_rate
     landmark_prob_values.append(landmark_prob)
 
@@ -190,7 +195,8 @@ day_call()
 
 name = "plot 1"
 my_file = open(name + ".txt","w")
-txt = "People start going to lockdown as the disease spreads. There is a gov. sanctioned lockdown after a ceratin a given infected count. More no of. people tend to disobey with time.\n\n"
+txt = "People are divided into regions. They move around in their own region sometimes to go to captials of other regions helping spread the disease "
+txt = txt + "People start going to lockdown as the disease spreads. There is a gov. sanctioned lockdown after a ceratin a given infected count. More no of. people tend to disobey with time.\n\n"
 txt = txt +"Parameters:\n spread_limit = {}\n recovery_prob = {}\n intial_count = {}\n infection_rate = {}\n ".format(spread_limit,recovery_prob,intial_count,infection_rate)
 txt = txt + "population = {}\n landmark = {}\n  landmark_prob = {}\n landmark_prob_dec_rate = {}\n lock_ratio = {}\n ".format(population,landmark,landmark_prob,landmark_prob_dec_rate,lock_ratio)
 txt = txt + "lock_decrease_rate = {}\n lock_increase_rate = {}\n  lock_infected_count = {}\n".format(lock_decrease_rate,lock_increase_rate,lock_infected_count)
