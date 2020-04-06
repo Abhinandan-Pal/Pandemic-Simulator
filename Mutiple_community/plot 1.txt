@@ -1,0 +1,15 @@
+People are divided into regions. They move around in their own region sometimes to go to captials of other regions helping spread the disease People start going to lockdown as the disease spreads. There is a gov. sanctioned lockdown after a ceratin a given infected count. More no of. people tend to disobey with time.
+
+Parameters:
+ spread_limit = 10
+ recovery_prob = 0.7
+ intial_count = 10
+ infection_rate = 0.5
+ population = 1000
+ landmark = [[3.0, 5], [19.0, 10], [21.0, 3], [33.0, 2], [50.0, 4], [50.0, 3], [65.0, 6], [80.0, 6], [83.0, 5], [94.0, 3]]
+  landmark_prob = 0.0005802843934150229
+ landmark_prob_dec_rate = 0.8
+ lock_ratio = 0.8
+ lock_decrease_rate = 0.2
+ lock_increase_rate = 0.1
+  lock_infected_count = 100
