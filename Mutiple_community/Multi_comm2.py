@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Mon Apr  6 18:21:36 2020
+Created on Sun Apr  5 01:57:59 2020
 
 @author: ap
 """
+
+# PLEASE READ ATTENTION BEFORE EXECUTING
 
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -26,8 +28,8 @@ lock_decrease_rate = 0.2
 lock_increase_rate = 0.1
 lock_infected_count = 100
 
-x_no_of_region = 2
-y_no_of_region = 2
+no_of_region = 10
+
 
 def initialize():
     global infected_count,dead_count,recovered_count,infected,pos,infected_count_arr
@@ -36,15 +38,13 @@ def initialize():
     pos['x'] =[]
     pos['y'] =[]
     pos['Quar'] = []
-    pos['x_i'] =[]
-    pos['y_i'] =[]
+    pos['region'] = []
 
     infected = pd.DataFrame()
     infected['x'] = []
     infected['y'] = []
     infected['time'] = []
-    infected['x_i'] = []
-    infected['y_i'] = []
+    infected['region'] = []
 
     infected_count = intial_count
     dead_count = 0
@@ -59,25 +59,27 @@ def initialize():
     lock_count_arr = []
 
     for i in range(population):
-        x_i = random.randint(1, x_no_of_region)
-        y_i = random.randint(1, y_no_of_region)
-        x = random.randint(population/10/x_no_of_region*(x_i - 1), population/10/x_no_of_region*x_i)
-        y = random.randint(population/10/y_no_of_region*(y_i - 1), population/10/y_no_of_region*y_i)
-        pos.loc[i]=[x,y,0,x_i,y_i]
-
+        reg = random.randint(0, no_of_region-1)
+        y = random.randint(0, population/10/no_of_region)
+        x = random.randint(0, population/10/no_of_region)+(reg)*(population/10/no_of_region)
+        pos.loc[i]=[x,y,0,reg]
+        # RUN THIS SECTION SO SEE INITIAL DISTRIBUTION
+        fig = plt.figure(figsize=(no_of_region, 1))
+        ax = fig.add_subplot(111)
+        ax.scatter(pos['x'],pos['y'])
+        #---------------------------------------------
 
     for i in range(10):
-        infected.loc[i]= [pos['x'][i],pos['y'][i],1,pos['x_i'][i],pos['y_i'][i]]
+        infected.loc[i]= [pos['x'][i],pos['y'][i],1,pos['region'][i]]
 
     pos = pos.iloc[10:]
-    pos = pos.reset_index(drop=True)    
+    pos = pos.reset_index(drop=True)   
     
     # set landmarks for each regions
-    for x_i in range(1,x_no_of_region+1):
-        for y_i in range(1,y_no_of_region+1):
-            x = random.randint(population/10/x_no_of_region*(x_i - 1), population/10/x_no_of_region*x_i)
-            y = random.randint(population/10/y_no_of_region*(y_i - 1), population/10/y_no_of_region*y_i)
-            landmark.append([x,y])
+    for reg in range(no_of_region):
+        y = random.randint(0, population/10/no_of_region)
+        x = random.randint(0, population/10/no_of_region)+(reg)*(population/10/no_of_region)
+        landmark.append([x,y])
 
 def isolation_initiate():
     global lock_count
@@ -107,11 +109,10 @@ def infected_check(pos1):
     return (random.random()<infection_rate*iso)
 
 def region_check(pos1,pos2):
-    if(pos['x_i'][pos1]==infected['x_i'][pos2]):
-        if(pos['x_i'][pos1]==infected['x_i'][pos2]):
+    if(pos['region'][pos1]==infected['region'][pos2]):
             return True
     return False
-    
+
 def infect():
     global pos,infected_count
     i = 0
@@ -128,7 +129,7 @@ def infect():
                         pos = pos.drop(i)
                         pos = pos.reset_index(drop=True) 
         
-        i = i +1       
+        i = i +1          
 
 def move_around():
     global landmark_prob,landmark_prob_values
@@ -208,4 +209,116 @@ plt.ylabel("No. of people")
 plt.savefig(name+ ".pdf")
 ax.show()
 
-###########
+################################################################################################################################################
+# Change in total involved,safe,and days taken with change in spread_limit
+################################################################################################################################################
+total_involed = []
+total_safe = []
+days = []
+spread_limit_values = []
+def spread_limit_change():
+    global spread_limit
+    spread_limit = 1
+    for i in range(16):    
+        day_call()
+        total_involed.append(recovered_count + dead_count)
+        total_safe.append(population - recovered_count - dead_count)
+        days.append(len(recovered_count_arr))
+        spread_limit_values.append(spread_limit)
+        spread_limit = spread_limit + 1
+    
+spread_limit_change()
+
+txt="PEOPLE SPREAD_LIMIT_VARIABLE(1,16)  recovery_prob = {} intial_count = {} infection_rate = {} ".format(recovery_prob,intial_count,infection_rate)
+plt.plot(spread_limit_values,total_involed ,color='blue')
+plt.plot(spread_limit_values,total_safe,color='orange' )
+plt.xlabel("SPREAD_LIMIT_VALUE")
+plt.ylabel("No. of people")
+plt.legend(['total_involed', 'total_safe'], loc='best')
+plt.title( txt)
+plt.savefig(txt+ ".pdf")
+plt.show()
+
+txt="DAYS SPREAD_LIMIT_VARIABLE(1,16)  recovery_prob = {} intial_count = {} infection_rate = {} ".format(recovery_prob,intial_count,infection_rate)
+plt.plot(spread_limit_values,days)
+plt.xlabel("SPREAD_LIMIT_VALUE")
+plt.ylabel("Days")
+plt.title( txt)
+plt.savefig(txt+ ".pdf")
+plt.show()
+
+################################################################################################################################################
+# Change in total involved,safe,and days taken with change in intial_count
+################################################################################################################################################
+total_involed = []
+total_safe = []
+days = []
+intial_count_values = []
+def intial_count_change():
+    global intial_count
+    intial_count = 10
+    for i in range(16):    
+        day_call()
+        total_involed.append(recovered_count + dead_count)
+        total_safe.append(population - recovered_count - dead_count)
+        days.append(len(recovered_count_arr))
+        intial_count_values.append(intial_count)
+        intial_count = intial_count + 1
+    
+intial_count_change()
+
+txt="PEOPLE INITIAL_COUNT_VARIABLE(10,25,step = 1)  recovery_prob = {} intial_count = {} infection_rate = {} ".format(recovery_prob,intial_count,infection_rate)
+plt.plot(intial_count_values,total_involed ,color='blue')
+plt.plot(intial_count_values,total_safe,color='orange' )
+plt.xlabel("INITIAL_COUNT_VALUE")
+plt.ylabel("No. of people")
+plt.legend(['total_involed', 'total_safe'], loc='best')
+plt.title( "Description in file name")
+plt.savefig(txt+ ".pdf")
+plt.show()
+
+txt="DAYS INITIAL_COUNT_VARIABLE(10,40,step = 1)  recovery_prob = {} intial_count = {} infection_rate = {} ".format(recovery_prob,intial_count,infection_rate)
+plt.plot(intial_count_values,days)
+plt.xlabel("INITIAL_COUNT_VALUE")
+plt.ylabel("Days")
+plt.title( "Description in file name")
+plt.savefig(txt+ ".pdf")
+plt.show()
+
+################################################################################################################################################
+# Change in total involved,safe,and days taken with change in infection_rate
+################################################################################################################################################
+total_involed = []
+total_safe = []
+days = []
+infection_rate_values = []
+def infection_rate_change():
+    global infection_rate
+    infection_rate = 0.10
+    for i in range(18):    
+        day_call()
+        total_involed.append(recovered_count + dead_count)
+        total_safe.append(population - recovered_count - dead_count)
+        days.append(len(recovered_count_arr))
+        infection_rate_values.append(infection_rate)
+        infection_rate = infection_rate + 0.05
+    
+infection_rate_change()
+
+txt="PEOPLE INFECTION_RATE_VARIABLE(0.1,1,step =.05)  recovery_prob = {} intial_count = {} spread_limit = {} ".format(recovery_prob,intial_count,spread_limit)
+plt.plot(infection_rate_values,total_involed ,color='blue')
+plt.plot(infection_rate_values,total_safe,color='orange' )
+plt.xlabel("INFECTION_RATE_VALUE")
+plt.ylabel("No. of people")
+plt.legend(['total_involed', 'total_safe'], loc='best')
+plt.title( "Description in file name")
+plt.savefig(txt+ ".pdf")
+plt.show()
+
+txt="DAYS INFECTION_RATE_VARIABLE(0.1,1,step =.05) recovery_prob = {} intial_count = {} spread_limit = {} ".format(recovery_prob,intial_count,spread_limit)
+plt.plot(infection_rate_values,days)
+plt.xlabel("INFECTION_RATE_VALUE")
+plt.ylabel("Days")
+plt.title( "Description in file name")
+plt.savefig(txt+ ".pdf")
+plt.show()
