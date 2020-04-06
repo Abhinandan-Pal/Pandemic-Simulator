@@ -95,6 +95,7 @@ def infect():
     global pos,infected_count
     i = 0
     move_around()
+    to_drop = []
     while(i < len(pos['x'])):
         for j in range(infected_count):
             if(i>=len(pos['x'])):
@@ -102,11 +103,11 @@ def infect():
             if(distance(i,j)< spread_limit):
                 if(infected_check(i)):
                     infected.loc[infected_count]= [pos['x'][i],pos['y'][i],1]
-                    infected_count = infected_count + 1   
-                    pos = pos.drop(i)
-                    pos = pos.reset_index(drop=True) 
-        
-        i = i +1       
+                    infected_count = infected_count + 1  
+                    to_drop.append(i)      
+        i = i +1     
+    pos = pos.drop(to_drop)
+    pos = pos.reset_index(drop=True) 
 
 def move_around():
     global landmark_prob,landmark_prob_values

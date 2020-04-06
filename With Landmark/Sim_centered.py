@@ -82,6 +82,9 @@ def day():
     infected_count = len(infected['time'])  
     i = 0
     move_around()
+    i = 0
+    move_around()
+    to_drop = []
     while(i < len(pos['x'])):
         for j in range(infected_count):
             if(i>=len(pos['x'])):
@@ -89,11 +92,11 @@ def day():
             if(distance(i,j)< spread_limit):
                 if(infected_check()):
                     infected.loc[infected_count]= [pos['x'][i],pos['y'][i],1]
-                    infected_count = infected_count + 1   
-                    pos = pos.drop(i)
-                    pos = pos.reset_index(drop=True) 
-        
-        i = i +1       
+                    infected_count = infected_count + 1  
+                    to_drop.append(i)      
+        i = i +1     
+    pos = pos.drop(to_drop)
+    pos = pos.reset_index(drop=True) 
 
 def removed():
     if(random.random()<recovery_prob):
@@ -132,6 +135,8 @@ ax.plot(infected_count_arr,color='red' )
 ax.plot(recovered_count_arr,color='green')
 
 plt.gca().legend(['Dead', 'non infected','infected', 'recovered'], loc='best')
+plt.xlabel("Days")
+plt.ylabel("No. of people")
 plt.savefig(name+ ".pdf")
 ax.show()
 
