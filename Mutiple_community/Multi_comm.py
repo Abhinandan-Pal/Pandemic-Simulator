@@ -1,0 +1,211 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Mon Apr  6 18:21:36 2020
+
+@author: ap
+"""
+
+import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
+import random
+
+spread_limit = 10
+recovery_prob = 0.70
+intial_count = 10
+infection_rate = 0.5
+population = 1000
+
+landmark = []
+landmark_prob = 0.1
+landmark_prob_dec_rate = 0.8
+
+lock_ratio = 0.8
+lock_decrease_rate = 0.2
+lock_increase_rate = 0.1
+lock_infected_count = 100
+
+x_no_of_region = 2
+y_no_of_region = 2
+
+def initialize():
+    global infected_count,dead_count,recovered_count,infected,pos,infected_count_arr
+    global dead_count_arr,recovered_count_arr,non_infected_count_arr,lock_count,landmark_prob_values,lock_count_arr 
+    pos = pd.DataFrame()
+    pos['x'] =[]
+    pos['y'] =[]
+    pos['Quar'] = []
+    pos['x_i'] =[]
+    pos['y_i'] =[]
+
+    infected = pd.DataFrame()
+    infected['x'] = []
+    infected['y'] = []
+    infected['time'] = []
+    infected['x_i'] = []
+    infected['y_i'] = []
+
+    infected_count = intial_count
+    dead_count = 0
+    recovered_count = 0
+    lock_count = 0
+
+    infected_count_arr = []
+    dead_count_arr = []
+    recovered_count_arr = []
+    non_infected_count_arr = []
+    landmark_prob_values = []
+    lock_count_arr = []
+
+    for i in range(population):
+        x_i = random.randint(1, x_no_of_region)
+        y_i = random.randint(1, y_no_of_region)
+        x = random.randint(population/10/x_no_of_region*(x_i - 1), population/10/x_no_of_region*x_i)
+        y = random.randint(population/10/y_no_of_region*(y_i - 1), population/10/y_no_of_region*y_i)
+        pos.loc[i]=[x,y,0,x_i,y_i]
+
+
+    for i in range(10):
+        infected.loc[i]= [pos['x'][i],pos['y'][i],1,pos['x_i'][i],pos['y_i'][i]]
+
+    pos = pos.iloc[10:]
+    pos = pos.reset_index(drop=True)    
+    
+    # set landmarks for each regions
+    for x_i in range(1,x_no_of_region+1):
+        for y_i in range(1,y_no_of_region+1):
+            x = random.randint(population/10/x_no_of_region*(x_i - 1), population/10/x_no_of_region*x_i)
+            y = random.randint(population/10/y_no_of_region*(y_i - 1), population/10/y_no_of_region*y_i)
+            landmark.append([x,y])
+
+def isolation_initiate():
+    global lock_count
+    for i in range(len(pos['x'])):
+        if(random.random()<lock_ratio):
+            pos.Quar[i]= 1
+            lock_count = lock_count + 1
+    
+def isolation():
+    global lock_count
+    i = 0
+
+    for i in range(len(pos['x'])):
+        t = random.random()
+        if(t<lock_increase_rate):
+            pos.Quar[i] = min(pos.Quar[i]+ random.random(),1)
+            lock_count = lock_count + 1
+        elif(t <( lock_increase_rate+lock_decrease_rate)):
+            pos.Quar[i] = max(pos.Quar[i]- random.random(),0)
+            lock_count = lock_count - 1
+            
+def distance(pos1,pos2):
+    return ((infected['x'][pos2]-pos['x'][pos1])**2)+((infected['y'][pos2]-pos['y'][pos1])**2)
+
+def infected_check(pos1):
+    iso = 1- pos['Quar'][pos1]
+    return (random.random()<infection_rate*iso)
+
+def region_check(pos1,pos2):
+    if(pos['x_i'][pos1]==infected['x_i'][pos2]):
+        if(pos['x_i'][pos1]==infected['x_i'][pos2]):
+            return True
+    return False
+    
+def infect():
+    global pos,infected_count
+    i = 0
+    move_around()
+    while(i < len(pos['x'])):
+        for j in range(infected_count):
+            if(i>=len(pos['x'])):
+                break
+            if(region_check(i,j)):
+                if(distance(i,j)< spread_limit):
+                    if(infected_check(i)):
+                        infected.loc[infected_count]= [pos['x'][i],pos['y'][i],1]
+                        infected_count = infected_count + 1   
+                        pos = pos.drop(i)
+                        pos = pos.reset_index(drop=True) 
+        
+        i = i +1       
+
+def move_around():
+    global landmark_prob,landmark_prob_values
+    for i in range(len(pos['x'])):
+        if(random.random()<landmark_prob):
+            x,y = landmark[random.randint(0, len(landmark)-1)]
+            pos.loc[i]=[x,y,pos['Quar'][i]]
+        else:     
+            pos.loc[i]=[random.randint(0, population/10),random.randint(0, population/10),pos['Quar'][i]]
+    landmark_prob = landmark_prob* landmark_prob_dec_rate
+    landmark_prob_values.append(landmark_prob)
+
+def day():
+    global infected_count,dead_count,recovered_count,infected,pos,lock_count_arr,lock_count #getting global data
+    
+    isolation()
+    if(infected_count > lock_infected_count):
+        isolation_initiate()
+    
+    infected_count_arr.append(infected_count)
+    non_infected_count_arr.append(len(pos['x']))
+    dead_count_arr.append(dead_count)
+    recovered_count_arr.append(recovered_count)
+    # increase infected time and remove necessary
+    for i in range(len(infected['time'])):
+        infected['time'][i]= infected['time'][i] +1
+        if (infected['time'][i]>3):
+            infected = infected.drop(i)
+            removed()
+    # set new loction for all not infected
+    infected = infected.reset_index(drop=True)
+    infected_count = len(infected['time'])  
+    infect()
+    lock_count_arr.append(lock_count)    
+
+def removed():
+    if(random.random()<recovery_prob):
+        global recovered_count
+        recovered_count = recovered_count + 1
+    else :
+        global dead_count
+        dead_count = dead_count + 1
+
+def day_call():
+    initialize()
+    while(infected_count != 0 ):
+        day()
+        
+#*************************************ATTENTION******************************************************
+#PLEASE DON'T EXECUTE THE CODE ALL AT ONCE RUN THE FIRST HALF FIRST AND THE SECOND HALF ONE AT A TIME        
+#*************************************ATTENTION******************************************************
+
+################################################################################################################################################
+# Get plot an data for a virtual environment of a given parameter
+################################################################################################################################################
+day_call()
+
+
+name = "plot 1"
+my_file = open(name + ".txt","w")
+txt = "People start going to lockdown as the disease spreads. There is a gov. sanctioned lockdown after a ceratin a given infected count. More no of. people tend to disobey with time.\n\n"
+txt = txt +"Parameters:\n spread_limit = {}\n recovery_prob = {}\n intial_count = {}\n infection_rate = {}\n ".format(spread_limit,recovery_prob,intial_count,infection_rate)
+txt = txt + "population = {}\n landmark = {}\n  landmark_prob = {}\n landmark_prob_dec_rate = {}\n lock_ratio = {}\n ".format(population,landmark,landmark_prob,landmark_prob_dec_rate,lock_ratio)
+txt = txt + "lock_decrease_rate = {}\n lock_increase_rate = {}\n  lock_infected_count = {}\n".format(lock_decrease_rate,lock_increase_rate,lock_infected_count)
+my_file.write(txt)
+
+fig = plt.figure(figsize=(len(dead_count_arr), 5))
+ax = fig.add_subplot(111)
+ax.plot(dead_count_arr,color='blue')
+ax.plot(non_infected_count_arr,color='orange' )
+ax.plot(infected_count_arr,color='red' )
+ax.plot(recovered_count_arr,color='green')
+
+plt.gca().legend(['Dead', 'non infected','infected', 'recovered'], loc='best')
+plt.xlabel("Days")
+plt.ylabel("No. of people")
+plt.savefig(name+ ".pdf")
+ax.show()
+
+###########
