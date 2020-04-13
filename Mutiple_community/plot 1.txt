@@ -1,4 +1,5 @@
-People are divided into regions. They move around in their own region sometimes to go to captials of other regions helping spread the disease People start going to lockdown as the disease spreads. There is a gov. sanctioned lockdown after a ceratin a given infected count. More no of. people tend to disobey with time.
+People are divided into regions. They move around in their own region sometimes to go to captials of other regions helping spread the disease.
+ People start going to lockdown as the disease spreads. There is a gov. sanctioned lockdown after a ceratin a given infected count. More no of. people tend to disobey with time.
 
 Parameters:
  spread_limit = 10
