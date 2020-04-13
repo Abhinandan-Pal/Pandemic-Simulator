@@ -9,3 +9,23 @@ The figure represents the population data frame. Each person has an x,y coordina
 ![alt text](/Images/infected_matrix.png)
 
 The figure represents the infected data frame. Each person has an x,y coordinate for their location. Time represents the number of days since the person has been infected. The region represents which region the person belongs to.
+
+## The parameters and variables
+
+spread_limit --> Maximum distance between infected and an uninfected person needed for infection to spread<br />
+recovery_prob --> Probability that a person will recover from the disease(at least 3 days after infection)<br />
+intial_count --> The number of people infected at the very beginning<br />
+infection_rate --> Probability of getting infected if within spread_limit<br />
+population = --> The number of people at the beginning of the simulation<br />
+
+landmark --> An array storing the x,y coordinates of the landmarks of each region<br />
+landmark_prob --> The probability of a random person to visit a landmark on a particular day<br />
+landmark_prob_dec_rate --> Rate of decrease in the tendency to visit a landmark on a particular day<br />
+
+lock_ratio --> Initial ratio of people who go on lockdown when government notice is put up<br />
+lock_decrease_rate --> ratio of people who go will decrease their lockdown value(Quar) each day<br />
+lock_increase_rate --> ratio of people who go will increase their lockdown value(Quar) each day<br />
+lock_infected_count --> minimum number of infected people after which lockdown starts<br />
+
+no_of_region --> No. of regions in which the people are divided <br />
+![alt text](/Images/variables.png)
