@@ -29,3 +29,15 @@ lock_infected_count --> minimum number of infected people after which lockdown s
 
 no_of_region --> No. of regions in which the people are divided <br />
 ![alt text](/Images/variables.png)
+
+# Plots
+## General plot
+![alt text](/Images/General_plot.png)
+Creating a simpler model initially, in this model there are no landmark(every location in equally probable). People don't go into lockdown. The space is not divided into regions. Values of parameters are present in the image itself.
+x axis represnts days,and y axis represents no of people.
+
+## Variable Infection_Rate value
+![alt text](/Images/infection_rate.png)
+This creates several models(simple model as in the General plot) and with different Infection_Rate value. The number of days within which the number of infected people becomes zero are found for each value. And the data is plotted above
+![alt text](/Images/infection_rate_people.png)
+This creates several models(simple model as in the General plot) and with different Infection_Rate value. The number of people infected and the number of recovered in found for each infection_rate value. And the data is plotted above
