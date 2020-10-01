@@ -4,11 +4,11 @@ import matplotlib.pyplot as plt
 import numpy as np
 import random
 
-spread_limit = 10
-recovery_prob = 0.70
-intial_count = 10
-infection_rate = 0.5
-population = 1000
+spread_limit = 9 #10
+recovery_prob = 0.69 #0.70
+intial_count = 30 #10
+infection_rate = 0.2 #0.5
+population = 786 #1000
 def initialize():
     global infected_count,dead_count,recovered_count,infected,pos,infected_count_arr,dead_count_arr,recovered_count_arr,non_infected_count_arr 
     pos = pd.DataFrame()
