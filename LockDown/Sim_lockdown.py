@@ -13,9 +13,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 import random
 
-spread_limit = 10
+spread_limit = 9
 recovery_prob = 0.70
-intial_count = 10
+intial_count = 9
 infection_rate = 0.5
 population = 1000
 
