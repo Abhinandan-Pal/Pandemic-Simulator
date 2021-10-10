@@ -17,7 +17,7 @@ spread_limit = 9
 recovery_prob = 0.70
 intial_count = 9
 infection_rate = 0.5
-population = 1000
+population = 999
 
 landmark = [(50,50),(10,10),(90,90)]
 landmark_prob = 0.1
